@@ -46,42 +46,42 @@ For demonstration purposes, the events (reset - success) are separated in the ha
 You also have the Rx wrapper for the service:
 
 ```java
-	private Single<String> service(String typeSimulation) {
-        return Single.create(emitter ->
-                functions
-                        .getHttpsCallable("simulateResponses?typeSimulation=" + typeSimulation)
-                        .call()
-                        .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData())
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                emitter.onSuccess(Objects.requireNonNull(task.getResult()));
-                            } else {
-                                emitter.onError(Objects.requireNonNull(task.getException()));
-                            }
-                        }));
-    }
+private Single<String> service(String typeSimulation) {
+    return Single.create(emitter ->
+            functions
+                    .getHttpsCallable("simulateResponses?typeSimulation=" + typeSimulation)
+                    .call()
+                    .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData())
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            emitter.onSuccess(Objects.requireNonNull(task.getResult()));
+                        } else {
+                            emitter.onError(Objects.requireNonNull(task.getException()));
+                        }
+                    }));
+}
 ```
 
 Calling from the client, you could use something like this:
 
 ```java
-	private void callServiceWithCircuitBreaker(String typeSimulation) {
-        ...
-        CircuitBreaker circuitBreaker = circuitBreakerManager.getCircuitBreaker("circuit-breaker-9", localPersistence);
-        compositeDisposable.add(
-                CircuitBreakersManager.callWithCircuitBreaker(this.service(typeSimulation), circuitBreaker)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(response -> {
-                                    logs(response, circuitBreaker.getStatus().toString(), true);
-                                    ...
-                                },
-                                throwable -> {
-                                    logs(throwable.getMessage(), circuitBreaker.getStatus().toString(), false);
-                                    ...
-                                }));
+private void callServiceWithCircuitBreaker(String typeSimulation) {
+    ...
+    CircuitBreaker circuitBreaker = circuitBreakerManager.getCircuitBreaker("circuit-breaker-9", localPersistence);
+    compositeDisposable.add(
+            CircuitBreakersManager.callWithCircuitBreaker(this.service(typeSimulation), circuitBreaker)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(response -> {
+                                logs(response, circuitBreaker.getStatus().toString(), true);
+                                ...
+                            },
+                            throwable -> {
+                                logs(throwable.getMessage(), circuitBreaker.getStatus().toString(), false);
+                                ...
+                            }));
 
-    }
+}
 ```
 
 ## Demo
