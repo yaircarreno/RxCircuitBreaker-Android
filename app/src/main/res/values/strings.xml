@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">RxCircuitBreaker</string>
+    <string name="call_service_success">😊 Call Success</string>
+    <string name="call_service_error">😥 Call with Error</string>
+    <string name="call_success_with_delay">😕 Call with Latency</string>
+</resources>
